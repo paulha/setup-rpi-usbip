@@ -1,0 +1,14 @@
+[Unit]
+Description=usbip host daemon
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=usbipd -D
+# Silicon Labs : CP2105 Dual UART Bridge (10c4:ea70)
+# Texas Instruments : PCM2903B Audio CODEC (08bb:29b3)
+ExecStartPost=/bin/sh -c "usbip bind --$(usbip list -p -l | grep '#usbid=10c4:ea70#' | cut '-d#' -f1); usbip bind --$(usbip list -p -l | grep '#usbid=08bb:29b3#' | cut '-d#' -f1)"
+ExecStop=/bin/sh -c "usbip unbind --$(usbip list -p -l | grep '#usbid=10c4:ea70#' | cut '-d#' -f1); usbip unbind --$(usbip list -p -l | grep '#usbid=08bb:29b3#' | cut '-d#' -f1); killall usbipd"
+
+[Install]
+WantedBy=multi-user.target
